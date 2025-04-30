@@ -3,7 +3,7 @@ import { BaseEntity } from '../../shared/infra/orm/base.entity';
 import { Role } from '../enums/role';
 
 @Entity('users')
-export class User extends BaseEntity {
+export class UserEntity extends BaseEntity {
   @Column()
   name: string;
 

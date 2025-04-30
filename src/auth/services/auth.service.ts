@@ -2,14 +2,14 @@ import { Repository } from 'typeorm';
 import { genSalt, hash } from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entities/user';
+import { UserEntity } from '../entities/user.entity';
 import { SignUpDto } from '../dtos/sign-up.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async signUp(dto: SignUpDto): Promise<void> {

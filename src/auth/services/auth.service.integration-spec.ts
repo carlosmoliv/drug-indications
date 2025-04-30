@@ -5,7 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { typeOrmTestConfig } from '../../test-utils/db/typeorm-test.config';
 import { clearDatabase } from '../../test-utils/db/clear-database.util';
 import { Role } from '../enums/role';
-import { User } from '../entities/user';
+import { UserEntity } from '../entities/user.entity';
 import { SignUpDto } from '../dtos/sign-up.dto';
 import { AuthService } from './auth.service';
 
@@ -17,7 +17,7 @@ describe('AuthService Integration Tests', () => {
     module = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot(typeOrmTestConfig),
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([UserEntity]),
       ],
       providers: [AuthService],
     }).compile();
@@ -44,7 +44,7 @@ describe('AuthService Integration Tests', () => {
 
       // Assert
       const userFromDb = await module
-        .get<Repository<User>>(getRepositoryToken(User))
+        .get<Repository<UserEntity>>(getRepositoryToken(UserEntity))
         .findOne({ where: { email: dto.email } });
 
       expect(userFromDb).toEqual(
