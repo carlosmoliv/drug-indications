@@ -8,6 +8,11 @@ import { Role } from '../enums/role';
 import { UserEntity } from '../entities/user.entity';
 import { SignUpDto } from '../dtos/sign-up.dto';
 import { AuthService } from './auth.service';
+import { ConflictException } from '@nestjs/common';
+import { SignInDto } from '../dtos/sign-in.dto';
+import { TokenService } from './token.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 describe('AuthService Integration Tests', () => {
   let sut: AuthService;
@@ -16,13 +21,23 @@ describe('AuthService Integration Tests', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        JwtModule.registerAsync({
+          useFactory: (configService: ConfigService) => ({
+            secret: configService.get<string>('JWT_SECRET'),
+          }),
+          inject: [ConfigService],
+        }),
         TypeOrmModule.forRoot(typeOrmTestConfig),
         TypeOrmModule.forFeature([UserEntity]),
       ],
-      providers: [AuthService],
+      providers: [AuthService, TokenService],
     }).compile();
 
     sut = module.get<AuthService>(AuthService);
+  });
+
+  beforeEach(async () => {
     await clearDatabase(module.get(DataSource));
   });
 
@@ -55,6 +70,47 @@ describe('AuthService Integration Tests', () => {
           password: expect.not.stringContaining(dto.password),
         }),
       );
+    });
+
+    it('should prevent registration using an existing email address', async () => {
+      // Arrange
+      const dto: SignUpDto = {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      };
+      await module
+        .get<Repository<UserEntity>>(getRepositoryToken(UserEntity))
+        .save(dto);
+
+      // Act
+      const promise = sut.signUp(dto);
+
+      // Assert
+      await expect(promise).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('signIn', () => {
+    it('should authenticate a user and return the access token', async () => {
+      // Arrange
+      const signUpDto: SignUpDto = {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      };
+      await sut.signUp(signUpDto);
+
+      const signInDto: SignInDto = {
+        email: signUpDto.email,
+        password: signUpDto.password,
+      };
+
+      // Act
+      const token = await sut.signIn(signInDto);
+
+      // Assert
+      expect(token).toEqual({ accessToken: expect.any(String) });
     });
   });
 });
