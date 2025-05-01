@@ -17,6 +17,8 @@ import { typeOrmAsyncConfig } from './config/typeorm.config';
           .required(),
         PORT: Joi.number().optional(),
         DATABASE_URL: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        ACCESS_TOKEN_TTL: Joi.number().required(),
       }),
     }),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
