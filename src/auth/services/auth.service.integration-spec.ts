@@ -113,7 +113,7 @@ describe('AuthService Integration Tests', () => {
       expect(token).toEqual({ accessToken: expect.any(String) });
     });
 
-    it('should deny authentication if user does not exist', () => {
+    it('should deny authentication if user does not exist', async () => {
       // Arrange
       const signInDto: SignInDto = {
         email: faker.internet.email(),
@@ -124,7 +124,26 @@ describe('AuthService Integration Tests', () => {
       const promise = sut.signIn(signInDto);
 
       // Assert
-      expect(promise).rejects.toThrow(UnauthorizedException);
+      await expect(promise).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should deny authentication if password does not match', async () => {
+      // Arrange
+      const signUpDto: SignUpDto = {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      };
+      await sut.signUp(signUpDto);
+
+      // Act
+      const promise = sut.signIn({
+        email: signUpDto.email,
+        password: faker.internet.password(),
+      });
+
+      // Assert
+      await expect(promise).rejects.toThrow(UnauthorizedException);
     });
   });
 });
