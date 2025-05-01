@@ -8,7 +8,7 @@ import { Role } from '../enums/role';
 import { UserEntity } from '../entities/user.entity';
 import { SignUpDto } from '../dtos/sign-up.dto';
 import { AuthService } from './auth.service';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { SignInDto } from '../dtos/sign-in.dto';
 import { TokenService } from './token.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -111,6 +111,20 @@ describe('AuthService Integration Tests', () => {
 
       // Assert
       expect(token).toEqual({ accessToken: expect.any(String) });
+    });
+
+    it('should deny authentication if user does not exist', () => {
+      // Arrange
+      const signInDto: SignInDto = {
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      };
+
+      // Act
+      const promise = sut.signIn(signInDto);
+
+      // Assert
+      expect(promise).rejects.toThrow(UnauthorizedException);
     });
   });
 });
