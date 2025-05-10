@@ -1,8 +1,8 @@
 {
-  "name": "drug-indications",
+  "name": "drug-indications-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "API that extracts drug indications from DailyMed drug labels",
+  "author": "Carlos Oliveira <carlosviniciusmoliveira@gmail.com> (https://github.com/carlosmoliv)",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
