@@ -1,40 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { Indication } from '../../../domain/indication';
-
-import icd10Data from '../../../../data/codes_icd10.json';
-import { DailyMedClient } from './dailymed-client.service';
-import { XmlParserService } from '../xml-parser/xml-parser.service';
-
-interface ICD10Entry {
-  code: string;
-  description: string;
-}
+import { XmlParserService } from '../../../infra/services/xml/xml-parser.service';
+import { DailyMedClient } from '../../../infra/services/dailymed/dailymed-client.service';
+import { Icd10Service } from '../icd10.service';
 
 @Injectable()
 export class DailyMedService {
-  private readonly DUPIXENT_SETID = '595f437d-2729-40bb-9c62-c8ece1f82780';
-
   constructor(
     private readonly dailyMedClient: DailyMedClient,
     private readonly xmlService: XmlParserService,
+    private readonly icd10MappingService: Icd10Service,
   ) {}
 
-  async getDrugIndications(setId = this.DUPIXENT_SETID): Promise<Indication[]> {
+  async extractDrugIndications(setId: string): Promise<Indication[]> {
     const xmlData = await this.dailyMedClient.getLabelXmlBySetId(setId);
     const parsedXml = this.xmlService.parse(xmlData);
 
-    const indicationsData = this.extractIndications(parsedXml);
+    const indicationsData = this.extractIndicationsRawData(parsedXml);
 
-    const indications = indicationsData.map(({ title, description }) => {
+    const indications = indicationsData.map(async ({ title, description }) => {
       const normalizedTitle = title.replace(/^\d+\.\d+\t/, '').trim();
-      const icdCode = 'A001'; // TODO: Implement AI mapping to ICD-10-CM code
+
+      const icdCode = await this.icd10MappingService.mapIndicationToICD10(
+        normalizedTitle,
+        description,
+      );
+
       return new Indication(normalizedTitle, description, icdCode);
     });
-
-    return indications;
+    return Promise.all(indications);
   }
 
-  private extractIndications(parsedXml): {
+  private extractIndicationsRawData(parsedXml): {
     title: string;
     description: string;
   }[] {
