@@ -3,7 +3,7 @@ import { DailyMedService } from './dailymed.service';
 import { DailyMedClient } from '../../../infra/services/dailymed/dailymed-client.service';
 import { XmlParserService } from '../../../infra/services/xml/xml-parser.service';
 import { Indication } from '../../../domain/indication';
-import { Icd10Service } from '../icd10.service';
+import { Icd10Service } from '../icd10/icd10.service';
 import { mockXml } from './mock-xml';
 import { mockParsedXml } from './mock-parsed-xml';
 

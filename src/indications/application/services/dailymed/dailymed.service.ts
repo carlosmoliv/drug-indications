@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Indication } from '../../../domain/indication';
 import { XmlParserService } from '../../../infra/services/xml/xml-parser.service';
 import { DailyMedClient } from '../../../infra/services/dailymed/dailymed-client.service';
-import { Icd10Service } from '../icd10.service';
+import { Icd10Service } from '../icd10/icd10.service';
 
 @Injectable()
 export class DailyMedService {
