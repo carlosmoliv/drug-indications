@@ -1,6 +1,6 @@
 ## Description
 
-Mining and Structuring Drug Indications from Labels. API that extracts drug indications from DailyMed drug
+Mining and Structuring Drug Indications from Labels. API that extracts drug indications from **DailyMed** drug
 labels, maps them to standardized medical vocabulary (ICD-10 codes).
 
 ## Features
