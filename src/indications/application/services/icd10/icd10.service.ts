@@ -17,8 +17,11 @@ export class Icd10Service {
   ): Promise<string> {
     try {
       const prompt = this.buildPrompt(indication, indicationDescription);
+
       const code = await this.aiService.getResponse(prompt);
-      const cleanedCode = code.trim().replace(/^"|"$/g, '');
+
+      const cleanedCode = code.trim().replace(/^"|"$/g, '').replace(/\./g, '');
+
       const validCode = this.icd10Data.find(
         (item) => item.code === cleanedCode,
       );
