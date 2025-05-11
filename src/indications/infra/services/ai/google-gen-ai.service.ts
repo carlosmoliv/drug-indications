@@ -18,6 +18,6 @@ export class GoogleGenAIService {
       model: this.model,
       contents: prompt,
     });
-    return response.data;
+    return response.text;
   }
 }
